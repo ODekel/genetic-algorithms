@@ -214,11 +214,7 @@ print("="*60)
 # Calculate mean fitness of result matrix
 final_fitnesses = []
 for i in range(num_samples):
-    sample = mn[:, i]
-    pred = hn @ result[i]
-    fitness_val = (sp.stats.pearsonr(sample, pred).statistic + 1.0) / (
-        np.abs(1.0 - result[i].sum()) + 1.0)
-    final_fitnesses.append(fitness_val)
+    final_fitnesses.append(_mean_squared_error_fitness(mn, result))
 
 mean_final_fitness = np.mean(final_fitnesses)
 print(f"Mean Final Fitness: {mean_final_fitness:.6f}")
