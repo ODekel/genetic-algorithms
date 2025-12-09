@@ -7,13 +7,10 @@ cell type proportion vectors to maximize fitness (Pearson correlation with obser
 expression, normalized by constraint satisfaction).
 
 The function generates two visualization plots:
-1. fitness_per_sample.png - Shows average fitness per generation for each sample,
-   with shaded regions indicating min-max range
-2. fitness_overall.png - Shows overall average fitness across all samples per generation,
-   with shaded region for min-max range
+1. Shows average fitness per generation for each sample, with shaded regions indicating min-max range.
+2. Shows overall average fitness across all samples per generation, with shaded region for min-max range.
 
-The best solution for each sample is combined into a result matrix and saved to
-'result_matrix.tsv'.
+The best solution for each sample is combined into a result matrix and saved to 'result.tsv'.
 
 Outputs:
     - results.tsv: Tab-separated file with final cell type proportions
@@ -87,10 +84,10 @@ def run_sample(sample: npt.NDArray[np.float32], rng: np.random.Generator, cfg: d
 
     for population, fitnesses in evolve(
         population=rng.random((cfg['population_size'], num_celltypes), dtype=np.float32),
-        population_size=cfg['population_size'],
         fitness=lambda p: _mean_squared_error_fitness(sample, p),
         parent_selector=lambda p, f, n: selection.roulette_wheel(p, f, n, replace=True, rng=rng),
         offsprings_per_generation=cfg['offsprings_per_generation'],
+        parents_per_offspring=2,
         offspring_selector=lambda p, f, n: selection.roulette_wheel(p, f, n, replace=False, rng=rng),
         reproduce=lambda p, s, pc: crossover.n_point(p, s, pc, rng),
         first_parent_offset=lambda n: None,

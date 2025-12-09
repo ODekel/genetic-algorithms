@@ -5,11 +5,11 @@ import numpy.typing as npt
 
 
 def evolve[T](population: npt.NDArray[T],
-              population_size: int,
               fitness: Callable[[npt.NDArray[T]], npt.NDArray[np.float32]],
               parent_selector: Callable[[npt.NDArray[T], npt.NDArray[np.float32], int], tuple[
                   npt.NDArray[T], npt.NDArray[np.float32]]],
               offsprings_per_generation: int,
+              parents_per_offspring: int,
               offspring_selector: Callable[[npt.NDArray[T], npt.NDArray[np.float32], int], tuple[
                   npt.NDArray[T], npt.NDArray[np.float32]]],
               reproduce: Callable[[npt.NDArray[T], npt.NDArray[np.uintp] | None, float], npt.NDArray[T]],
@@ -21,16 +21,16 @@ def evolve[T](population: npt.NDArray[T],
               stop: Callable[[npt.NDArray[T], npt.NDArray[np.float32], int], bool]
               ) -> Generator[tuple[npt.NDArray[T], npt.NDArray[np.float32]]]:
     original_shape = population.shape
-    population = population.reshape(population_size, -1)
+    population = population.reshape(original_shape[0], -1)
     fitnesses = fitness(population)
     generation = 0
     while not stop(population, fitnesses, generation):
-        parents = (parent_selector(population, fitnesses, offsprings_per_generation * 2)[0]
-                   .reshape((offsprings_per_generation, 2, -1)))
+        parents = (parent_selector(population, fitnesses, offsprings_per_generation * parents_per_offspring)[0]
+                   .reshape((offsprings_per_generation, parents_per_offspring, -1)))
         offsprings = reproduce(parents, first_parent_offset(generation), pc)
         mutate(offsprings, pm, lambda n: mutation_generator(n))
         population = np.concatenate((population, offsprings), axis=0)
         fitnesses: npt.NDArray = fitness(population)
-        population, fitnesses = offspring_selector(population, fitnesses, population_size)
+        population, fitnesses = offspring_selector(population, fitnesses, original_shape[0])
         generation += 1
         yield population.reshape(original_shape), fitnesses
