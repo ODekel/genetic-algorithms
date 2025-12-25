@@ -1,0 +1,10 @@
+{
+  "max_generations": 1000,
+  "population_size": 1000,
+  "offsprings_per_generation": 250,
+  "pc": 0.1,
+  "pm": 0.05,
+  "sample_data_file": "./gene_sample_TPM.tsv",
+  "celltype_data_file": "./gene_celltype_TPM.tsv",
+  "results_file": "./results.tsv"
+}
